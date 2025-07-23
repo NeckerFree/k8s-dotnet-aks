@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hola-mundo-dotnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hola-mundo-dotnet
+  template:
+    metadata:
+      labels:
+        app: hola-mundo-dotnet
+    spec:
+      containers:
+      - name: hola-mundo-dotnet
+        image: <ACR_LOGIN_SERVER>/hola-mundo-dotnet:latest
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /app/data
+          name: sqlite-storage
+      volumes:
+      - name: sqlite-storage
+        persistentVolumeClaim:
+          claimName: sqlite-pvc

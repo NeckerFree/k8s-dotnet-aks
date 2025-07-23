@@ -1,0 +1,22 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# Rider / VS / VS Code
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Terraform
+infra/.terraform/
+infra/.terraform.lock.hcl
+*.tfstate*
+.terraform.tfstate*
+crash.log
+
+# Dotnet
+*.db
+*.db-shm
+*.db-wal

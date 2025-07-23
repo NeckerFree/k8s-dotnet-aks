@@ -1,0 +1,43 @@
+name: Terraform Create Infra
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Azure Login (for backend bootstrap)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          client-secret: ${{ secrets.ARM_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Ensure backend storage exists (idempotent)
+        run: |
+          az group create -n tfstate-rg -l eastus
+          az storage account create -n tfstatek8sstore -g tfstate-rg -l eastus --sku Standard_LRS || true
+          az storage container create --name tfstate --account-name tfstatek8sstore || true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init -input=false -no-color
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false -no-color           -var "client_id=${{ secrets.ARM_CLIENT_ID }}"           -var "client_secret=${{ secrets.ARM_CLIENT_SECRET }}"           -var "subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }}"           -var "tenant_id=${{ secrets.ARM_TENANT_ID }}"           -var "ssh_public_key=${{ secrets.VM_SSH_PUB_KEY }}"
