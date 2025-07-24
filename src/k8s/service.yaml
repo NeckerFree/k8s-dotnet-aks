@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: hola-mundo-dotnet-svc
 spec:
-  type: LoadBalancer
   selector:
     app: hola-mundo-dotnet
+  type: LoadBalancer
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 8080
