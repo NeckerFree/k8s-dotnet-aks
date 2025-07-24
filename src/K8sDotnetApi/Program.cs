@@ -4,8 +4,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configuración de EF Core + SQLite en ruta persistente montada por PVC
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=/app/data/movies.db"));
+ options.UseSqlite("Data Source=/app/data/movies.db")); //Linux
 
+// var dbPath = Path.Combine("app", "data", "movies.db");
+// Directory.CreateDirectory(Path.GetDirectoryName(dbPath));
+// builder.Services.AddDbContext<AppDbContext>(options =>
+//  options.UseSqlite($"Data Source={dbPath}")); //Windows
 var app = builder.Build();
 
 // Ejecutar migraciones en arranque (solo DEMO; no recomendado prod)

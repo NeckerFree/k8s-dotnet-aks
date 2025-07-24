@@ -1,0 +1,30 @@
+name: Build and Push to ACR
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  ACR_NAME: k8sdotnetaksdu9q
+  IMAGE_NAME: hola-mundo-dotnet
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Docker Login to ACR
+      run: |
+        az acr login --name $ACR_NAME
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:latest .
+        docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:latest
