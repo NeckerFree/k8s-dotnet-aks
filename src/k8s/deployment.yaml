@@ -16,7 +16,7 @@ spec:
         - name: hola-mundo-dotnet
           image: k8sdotnetaksdu9q.azurecr.io/hola-mundo-dotnet:latest
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           volumeMounts:
             - mountPath: /app/data
               name: sqlite-storage
