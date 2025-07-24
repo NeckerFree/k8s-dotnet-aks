@@ -2,7 +2,7 @@
 bin/
 obj/
 out/
-
+.git/
 # Rider / VS / VS Code
 .vscode/
 .idea/
@@ -21,3 +21,4 @@ crash.log
 *.db-shm
 *.db-wal
 infra/terraform.tfvars
+.github/workflows/build-and-push.old.yml
