@@ -1,4 +1,5 @@
 name: CD Deploy to AKS
+
 on:
   workflow_run:
     workflows: ["CI Build & Push"]
@@ -13,24 +14,30 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Get Terraform Outputs
+      - name: Terraform Init & Get Outputs
         id: tfout
         run: |
+          terraform -chdir=infra init -input=false
           echo "acr=$(terraform -chdir=infra output -raw acr_login_server)" >> $GITHUB_OUTPUT
           echo "aks=$(terraform -chdir=infra output -raw aks_name)" >> $GITHUB_OUTPUT
           echo "rg=$(terraform -chdir=infra output -raw aks_rg_name)" >> $GITHUB_OUTPUT
 
       - name: Get AKS Credentials
         run: |
-          az aks get-credentials --name "${{ steps.tfout.outputs.aks }}" --resource-group "${{ steps.tfout.outputs.rg }}" --overwrite-existing
+          az aks get-credentials \
+            --name "${{ steps.tfout.outputs.aks }}" \
+            --resource-group "${{ steps.tfout.outputs.rg }}" \
+            --overwrite-existing
 
       - name: Patch Deployment Image
         env:
@@ -48,9 +55,9 @@ jobs:
         run: |
           echo "Esperando EXTERNAL-IP..."
           for i in {1..30}; do
-            ip=$(kubectl get svc hola-mundo-dotnet-svc -o jsonpath='{.status.loadBalancer.ingress[0].ip}' || true)
+            ip=$(kubectl get svc hola-mundo-dotnet-svc -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)
             if [ -n "$ip" ]; then
-              echo "EXTERNAL-IP=$ip" >> $GITHUB_ENV
+              echo "EXTERNAL_IP=$ip" >> $GITHUB_ENV
               echo "External IP: $ip"
               break
             fi
