@@ -52,7 +52,7 @@ jobs:
 
       - name: Deploy to AKS
         run: |
-          kubectl apply -f src/k8s/pvc.yaml
+          kubectl apply -f src/k8s/sqlite-pvc.yaml
           kubectl apply -f src/k8s/deployment.yaml
           kubectl apply -f src/k8s/service.yaml
 
